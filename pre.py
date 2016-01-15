@@ -4,6 +4,8 @@ Test program for pre-processing schedule
 import arrow
 
 base = arrow.now()
+#Used to find current week
+current = base
 
 def process(raw):
     """
@@ -41,13 +43,20 @@ def process(raw):
                 entry = { }
             entry['topic'] = ""
             entry['project'] = ""
-            entry['week'] = content
+            entry['current'] = False
+            entry['week'] = content + ": " + str(base.format('M-D'))
+            temp = base
+            base = base.replace(days = 6) #Increment the days by seven days 
+            for r in arrow.Arrow.range('day', temp, base):
+                if r.day == current.day and r.month == current.month:
+                     entry['current'] = True
 
         elif field == 'topic' or field == 'project':
             entry[field] = content
 
         else:
             raise ValueError("Syntax error in line: {}".format(line))
+            
 
     if entry:
         cooked.append(entry)
